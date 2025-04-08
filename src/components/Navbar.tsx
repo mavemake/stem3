@@ -42,14 +42,14 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-8">
-          {['home', 'about', 'menu', 'testimonials', 'gallery', 'contact'].map((item) => (
+          {['home', 'about', 'testimonials', 'gallery', 'contact'].map((item) => (
             <a
               key={item}
               href={`#${item}`}
               className="text-white capitalize hover:text-orange transition-colors"
               onClick={closeMenu}
             >
-              {item === 'menu' ? 'Programs' : item}
+              {item}
             </a>
           ))}
         </div>
@@ -74,14 +74,14 @@ const Navbar = () => {
         )}
       >
         <div className="container mx-auto px-4 flex flex-col space-y-4">
-          {['home', 'about', 'menu', 'testimonials', 'gallery', 'contact'].map((item) => (
+          {['home', 'about', 'testimonials', 'gallery', 'contact'].map((item) => (
             <a
               key={item}
               href={`#${item}`}
               className="text-white capitalize py-2 hover:text-orange transition-colors"
               onClick={closeMenu}
             >
-              {item === 'menu' ? 'Programs' : item}
+              {item}
             </a>
           ))}
         </div>

@@ -20,13 +20,12 @@ const HeroSection = () => {
           </h1>
           
           <p className="text-light text-lg md:text-xl mb-8">
-            Discover innovation through Science, Technology, Engineering, and Mathematics.
-            Your journey to becoming a future innovator begins here.
+            Action Speaks Louder Than Voice!
           </p>
           
           <div className="flex flex-wrap gap-4">
-            <a href="#menu" className="btn btn-secondary hover-scale">
-              Our Programs
+            <a href="#about" className="btn btn-secondary hover-scale">
+              About Us
             </a>
             <a href="#contact" className="btn bg-transparent border-2 border-white text-white hover:bg-white hover:text-dark hover:border-white">
               Contact Us

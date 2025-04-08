@@ -21,7 +21,7 @@ const AboutSection = () => {
   return (
     <section id="about" className="section bg-light">
       <div className="container mx-auto">
-        <h2 className="text-4xl text-center mb-16">About STEM 3</h2>
+        <h2 className="text-4xl text-center mb-16">About Us</h2>
         
         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
           {/* Circular Image */}
@@ -37,11 +37,9 @@ const AboutSection = () => {
           
           {/* Text Content */}
           <div className="w-full md:w-1/2">
-            <h3 className="text-3xl mb-4">Our Mission</h3>
+            <h3 className="text-3xl mb-4">Our Story</h3>
             <p className="mb-6 text-gray-700">
-              Established in 2015, STEM 3 has been preparing the next generation of innovators and problem-solvers.
-              Our commitment to excellence in Science, Technology, Engineering, and Mathematics education has made us
-              one of the most respected STEM programs in the region.
+              This page is dedicated to storing memories. Together, we can keep our lovely moments alive.
             </p>
             <p className="mb-6 text-gray-700">
               Our faculty brings decades of experience from industry and academia, creating a unique learning environment

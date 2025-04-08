@@ -44,35 +44,29 @@ const ContactSection = () => {
             <div className="md:w-1/2 bg-dark text-white p-8">
               <h3 className="text-2xl mb-6">Get in Touch</h3>
               <p className="mb-6">
-                We'd love to hear from you. Drop us a message or give us a call to make reservations or inquiries.
+                We'd love to hear from you. Drop us a message or give us a call for any inquiries.
               </p>
               
               <div className="space-y-4">
                 <div>
                   <h4 className="text-orange font-semibold mb-1">Address</h4>
-                  <p>123 Gourmet Street, Culinary District, CA 12345</p>
+                  <p>10246 centennial 2b, nagpayong pinagbuhatan pasig city</p>
                 </div>
                 
                 <div>
                   <h4 className="text-orange font-semibold mb-1">Phone</h4>
-                  <p>(123) 456-7890</p>
+                  <p>09761001189</p>
                 </div>
                 
                 <div>
                   <h4 className="text-orange font-semibold mb-1">Email</h4>
-                  <p>info@culinarydelights.com</p>
-                </div>
-                
-                <div>
-                  <h4 className="text-orange font-semibold mb-1">Hours</h4>
-                  <p>Mon-Fri: 5pm-11pm</p>
-                  <p>Sat-Sun: 12pm-11pm</p>
+                  <p>janrexclydegano@gmail.com</p>
                 </div>
               </div>
               
               <div className="mt-8">
                 <a 
-                  href="mailto:developer@example.com" 
+                  href="mailto:janrexclydegano@gmail.com" 
                   className="inline-block text-white hover:text-orange transition-colors"
                 >
                   Contact the Dev
