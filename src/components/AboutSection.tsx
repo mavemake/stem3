@@ -24,12 +24,12 @@ const AboutSection = () => {
         <h2 className="text-4xl text-center mb-16">About Us</h2>
         
         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-          {/* Circular Image */}
+          {/* Certificate Image */}
           <div className="w-full md:w-1/2 flex justify-center">
-            <div className="rounded-full w-64 h-64 md:w-80 md:h-80 overflow-hidden border-4 border-orange shadow-xl">
+            <div className="rounded-lg w-64 md:w-80 overflow-hidden border-4 border-orange shadow-xl">
               <img 
-                src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" 
-                alt="Students working on STEM project"
+                src="/lovable-uploads/65581fe8-88ee-46d0-95f8-806abbf6a27e.png" 
+                alt="STEM Strand Certificate"
                 className="w-full h-full object-cover"
               />
             </div>

@@ -7,7 +7,7 @@ const HeroSection = () => {
       id="home" 
       className="min-h-screen bg-dark relative flex items-center"
       style={{
-        backgroundImage: `linear-gradient(rgba(59, 20, 28, 0.85), rgba(59, 20, 28, 0.9)), url('https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80')`,
+        backgroundImage: `linear-gradient(rgba(59, 20, 28, 0.75), rgba(59, 20, 28, 0.8)), url('/lovable-uploads/8e366d26-27a9-4c23-bbfe-374c5e5a5880.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
