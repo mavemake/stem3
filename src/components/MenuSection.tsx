@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-// Menu Item Component
+// Program Item Component
 const MenuItem = ({ name, description, image }) => {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -20,37 +20,37 @@ const MenuItem = ({ name, description, image }) => {
   );
 };
 
-// Menu data
+// Program data
 const menuItems = [
   {
-    name: "Grilled Salmon",
-    description: "Fresh Atlantic salmon, grilled to perfection, served with lemon butter sauce and seasonal vegetables.",
-    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
+    name: "Robotics Engineering",
+    description: "Design, build, and program robots to solve real-world challenges using cutting-edge technology and collaborative problem-solving.",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
   {
-    name: "Beef Wellington",
-    description: "Tender filet mignon wrapped in layers of mushroom duxelles, prosciutto, and puff pastry.",
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1769&q=80"
+    name: "Data Science",
+    description: "Learn to analyze complex datasets, create visualizations, and develop predictive models using statistics and programming.",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
   {
-    name: "Truffle Risotto",
-    description: "Creamy Arborio rice slowly cooked with white wine, finished with truffle oil and Parmesan cheese.",
-    image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
+    name: "Environmental Science",
+    description: "Explore ecosystems, climate science, and sustainable solutions through field research and laboratory experiments.",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
   {
-    name: "Chocolate Soufflé",
-    description: "Light and airy chocolate soufflé served with vanilla bean ice cream and fresh berries.",
-    image: "https://images.unsplash.com/photo-1579306194872-64d3b7bac4c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80"
+    name: "Advanced Mathematics",
+    description: "Deep dive into calculus, statistics, and discrete mathematics with real-world applications and problem-solving challenges.",
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
   {
-    name: "Seafood Paella",
-    description: "Traditional Spanish rice dish with assorted seafood, seasoned with saffron and herbs.",
-    image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1180&q=80"
+    name: "Software Development",
+    description: "Create applications, websites, and software solutions while learning programming languages and development methodologies.",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
   {
-    name: "Vegetable Tart",
-    description: "Crisp pastry filled with roasted seasonal vegetables and goat cheese, served with green salad.",
-    image: "https://images.unsplash.com/photo-1487376318617-f43c7b41e2e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
+    name: "Biomedical Engineering",
+    description: "Combine biology, medicine, and engineering to develop innovative healthcare solutions and medical technologies.",
+    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80"
   },
 ];
 
@@ -58,7 +58,7 @@ const MenuSection = () => {
   return (
     <section id="menu" className="section bg-white">
       <div className="container mx-auto">
-        <h2 className="text-4xl text-center mb-16">Our Menu</h2>
+        <h2 className="text-4xl text-center mb-16">Our Programs</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {menuItems.map((item, index) => (
@@ -73,7 +73,7 @@ const MenuSection = () => {
         
         <div className="mt-12 text-center">
           <a href="#contact" className="btn btn-secondary">
-            Reserve a Table
+            Apply Now
           </a>
         </div>
       </div>

@@ -37,7 +37,7 @@ const Navbar = () => {
     )}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <a href="#home" className="text-2xl font-miniver text-white">
-          Culinary<span className="text-orange">Delights</span>
+          STEM<span className="text-orange">3</span>
         </a>
 
         {/* Desktop Menu */}
@@ -49,7 +49,7 @@ const Navbar = () => {
               className="text-white capitalize hover:text-orange transition-colors"
               onClick={closeMenu}
             >
-              {item}
+              {item === 'menu' ? 'Programs' : item}
             </a>
           ))}
         </div>
@@ -81,7 +81,7 @@ const Navbar = () => {
               className="text-white capitalize py-2 hover:text-orange transition-colors"
               onClick={closeMenu}
             >
-              {item}
+              {item === 'menu' ? 'Programs' : item}
             </a>
           ))}
         </div>

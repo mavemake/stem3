@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,19 +8,19 @@ const testimonials = [
     id: 1,
     name: 'Sarah Johnson',
     image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
-    text: 'The dining experience was absolutely phenomenal! The flavors were exquisite and the presentation was a work of art. I\'ll definitely be back!',
+    text: 'The STEM 3 program completely transformed my career path! The hands-on robotics projects gave me skills that helped me secure an internship at a leading tech company.',
   },
   {
     id: 2,
     name: 'James Wilson',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
-    text: 'This restaurant exceeded all my expectations. The service was impeccable, and the chef\'s seasonal menu was innovative yet comforting. A true gem in the city.',
+    text: 'The faculty at STEM 3 are incredible mentors who truly care about student success. The environmental science program gave me practical skills that I use daily in my research work.',
   },
   {
     id: 3,
     name: 'Emma Davis',
     image: 'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1776&q=80',
-    text: 'From the moment we walked in, we felt welcomed and valued. The ambiance was perfect for our anniversary dinner, and every dish was better than the last.',
+    text: 'The advanced mathematics program challenged me intellectually and prepared me for university-level coursework. I\'m now pursuing my PhD in computational mathematics thanks to STEM 3\'s foundation.',
   },
 ];
 
@@ -62,7 +61,7 @@ const TestimonialsSection = () => {
   return (
     <section id="testimonials" className="section bg-light">
       <div className="container mx-auto">
-        <h2 className="text-4xl text-center mb-16">What Our Guests Say</h2>
+        <h2 className="text-4xl text-center mb-16">What Our Students Say</h2>
         
         <div className="relative max-w-4xl mx-auto">
           {/* Carousel */}
