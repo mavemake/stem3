@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Empty testimonials array to start with
@@ -13,7 +13,9 @@ const TestimonialsSection = () => {
   const [newTestimonial, setNewTestimonial] = useState({
     name: '',
     text: '',
+    image: null,
   });
+  const [previewImage, setPreviewImage] = useState(null);
 
   const nextSlide = () => {
     if (!isAnimating && testimonials.length > 0) {
@@ -58,17 +60,34 @@ const TestimonialsSection = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setNewTestimonial(prev => ({
+          ...prev,
+          image: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddTestimonial = (e) => {
     e.preventDefault();
-    if (newTestimonial.name.trim() && newTestimonial.text.trim()) {
+    if (newTestimonial.name.trim() && newTestimonial.text.trim() && newTestimonial.image) {
       const newEntry = {
         id: Date.now(),
         name: newTestimonial.name,
         text: newTestimonial.text,
+        image: newTestimonial.image,
       };
       
       setTestimonials(prev => [...prev, newEntry]);
-      setNewTestimonial({ name: '', text: '' });
+      setNewTestimonial({ name: '', text: '', image: null });
+      setPreviewImage(null);
     }
   };
 
@@ -111,6 +130,31 @@ const TestimonialsSection = () => {
               ></textarea>
             </div>
             
+            {/* Image Upload Field */}
+            <div className="mb-6">
+              <label htmlFor="image" className="block text-gray-700 mb-2">
+                Your Photo (Required)
+              </label>
+              <div className="flex items-center space-x-4">
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
+                    required
+                  />
+                </div>
+                {previewImage && (
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange">
+                    <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <button
               type="submit"
               className="bg-orange text-white py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors focus:outline-none"
@@ -132,6 +176,15 @@ const TestimonialsSection = () => {
                   <div key={testimonial.id} className="min-w-full">
                     <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
                       <div className="flex flex-col items-center text-center">
+                        {testimonial.image && (
+                          <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 border-orange shadow-md">
+                            <img 
+                              src={testimonial.image} 
+                              alt={`${testimonial.name}'s photo`} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
                         <p className="text-gray-700 text-lg italic mb-6">"{testimonial.text}"</p>
                         <h4 className="text-xl font-semibold">{testimonial.name}</h4>
                       </div>

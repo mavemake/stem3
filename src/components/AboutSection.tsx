@@ -41,11 +41,6 @@ const AboutSection = () => {
             <p className="mb-6 text-gray-700">
               This page is dedicated to storing memories. Together, we can keep our lovely moments alive.
             </p>
-            <p className="mb-6 text-gray-700">
-              Our faculty brings decades of experience from industry and academia, creating a unique learning environment
-              that blends theoretical knowledge with practical applications. Each student is guided to discover their 
-              potential and develop the skills needed for success in the rapidly evolving technological landscape.
-            </p>
             
             {/* Social Links */}
             <div className="flex gap-4 mt-8">
