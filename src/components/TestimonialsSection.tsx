@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -10,6 +10,9 @@ import {
   hasUserSubmittedTestimonial
 } from '@/services/firebase';
 import { getUserId } from '@/services/userManager';
+import { useAuth } from '@/contexts/AuthContext';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 interface Testimonial {
   id: string;
@@ -19,6 +22,7 @@ interface Testimonial {
 }
 
 const TestimonialsSection = () => {
+  const { currentUser } = useAuth();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -35,9 +39,26 @@ const TestimonialsSection = () => {
   // Check if user has already submitted a testimonial and load existing testimonials
   useEffect(() => {
     const checkSubmissionStatus = async () => {
-      const userId = getUserId();
-      const submitted = await hasUserSubmittedTestimonial(userId);
-      setHasSubmitted(submitted);
+      if (currentUser) {
+        try {
+          const submitted = await hasUserSubmittedTestimonial(currentUser.uid);
+          setHasSubmitted(submitted);
+          
+          // Pre-fill name if user has a nickname saved
+          const storedProfile = localStorage.getItem(`profile_${currentUser.uid}`);
+          if (storedProfile) {
+            const profile = JSON.parse(storedProfile);
+            if (profile.nickname) {
+              setNewTestimonial(prev => ({
+                ...prev,
+                name: profile.nickname
+              }));
+            }
+          }
+        } catch (error) {
+          console.error("Error checking submission status:", error);
+        }
+      }
     };
     
     const loadTestimonials = async () => {
@@ -48,7 +69,7 @@ const TestimonialsSection = () => {
         console.error("Error loading testimonials:", error);
         toast({
           title: "Error",
-          description: "Failed to load testimonials",
+          description: "Failed to load testimonials. Please try again later.",
           variant: "destructive"
         });
       }
@@ -56,7 +77,7 @@ const TestimonialsSection = () => {
     
     checkSubmissionStatus();
     loadTestimonials();
-  }, [toast]);
+  }, [currentUser, toast]);
 
   const nextSlide = () => {
     if (!isAnimating && testimonials.length > 0) {
@@ -118,6 +139,15 @@ const TestimonialsSection = () => {
   const handleAddTestimonial = async (e) => {
     e.preventDefault();
     
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit a testimonial",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (hasSubmitted) {
       toast({
         title: "Already Submitted",
@@ -130,7 +160,7 @@ const TestimonialsSection = () => {
     if (newTestimonial.name.trim() && newTestimonial.text.trim() && selectedFile) {
       try {
         setIsLoading(true);
-        const userId = getUserId();
+        const userId = currentUser.uid;
         
         // Upload image to Firebase Storage
         const imageUrl = await uploadTestimonialImage(selectedFile, userId);
@@ -186,29 +216,46 @@ const TestimonialsSection = () => {
         <h2 className="text-4xl text-center mb-8">What Our Students Say</h2>
         
         {/* Add Testimonial Form */}
-        {!hasSubmitted ? (
+        {!currentUser ? (
+          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16 text-center">
+            <h3 className="text-2xl mb-4">Share Your Experience</h3>
+            <p className="mb-6 text-gray-700">Please log in to share your testimonial.</p>
+            <div className="flex justify-center">
+              <button 
+                className="bg-orange text-white py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors flex items-center gap-2"
+                onClick={() => {
+                  const loginButton = document.querySelector('.fixed.bottom-8.right-8 button');
+                  if (loginButton) (loginButton as HTMLElement).click();
+                }}
+              >
+                <LogIn size={18} />
+                <span>Log In</span>
+              </button>
+            </div>
+          </div>
+        ) : !hasSubmitted ? (
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16">
             <h3 className="text-2xl mb-4">Share Your Experience</h3>
             <form onSubmit={handleAddTestimonial}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 mb-2">
+                <Label htmlFor="name" className="block text-gray-700 mb-2">
                   Your Name
-                </label>
-                <input
+                </Label>
+                <Input
                   type="text"
                   id="name"
                   name="name"
                   value={newTestimonial.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
+                  className="w-full"
                   required
                 />
               </div>
               
               <div className="mb-4">
-                <label htmlFor="text" className="block text-gray-700 mb-2">
+                <Label htmlFor="text" className="block text-gray-700 mb-2">
                   Your Experience
-                </label>
+                </Label>
                 <textarea
                   id="text"
                   name="text"
@@ -222,18 +269,18 @@ const TestimonialsSection = () => {
               
               {/* Image Upload Field */}
               <div className="mb-6">
-                <label htmlFor="image" className="block text-gray-700 mb-2">
+                <Label htmlFor="image" className="block text-gray-700 mb-2">
                   Your Photo (Required)
-                </label>
+                </Label>
                 <div className="flex items-center space-x-4">
                   <div className="flex-1">
-                    <input
+                    <Input
                       type="file"
                       id="image"
                       name="image"
                       accept="image/*"
                       onChange={handleImageChange}
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
+                      className="w-full"
                       required
                     />
                   </div>

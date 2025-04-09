@@ -3,28 +3,64 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { loginUser, registerUser, logoutUser, hasUserSubmittedTestimonial } from '@/services/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LoginSection = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { currentUser } = useAuth();
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [userData, setUserData] = useState({
     nickname: '',
     profilePicture: null,
-    testimonial: '',
   });
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setIsLoggedIn(true);
-      setUserData(JSON.parse(storedUser));
-    }
-  }, []);
+    // Check if user has submitted a testimonial
+    const checkSubmissionStatus = async () => {
+      if (currentUser) {
+        try {
+          const submitted = await hasUserSubmittedTestimonial(currentUser.uid);
+          setHasSubmitted(submitted);
+        } catch (error) {
+          console.error("Error checking testimonial status:", error);
+        }
+      }
+    };
+
+    // Load user profile data if available
+    const loadUserProfile = () => {
+      if (currentUser) {
+        const storedProfile = localStorage.getItem(`profile_${currentUser.uid}`);
+        if (storedProfile) {
+          setUserData(JSON.parse(storedProfile));
+        } else {
+          // Set default nickname from email if available
+          if (currentUser.email) {
+            const name = currentUser.email.split('@')[0];
+            setUserData({
+              ...userData,
+              nickname: name
+            });
+          }
+        }
+      }
+    };
+
+    checkSubmissionStatus();
+    loadUserProfile();
+  }, [currentUser]);
 
   const toggleLoginForm = () => {
     setShowLoginForm(!showLoginForm);
+  };
+
+  const handleModeToggle = () => {
+    setIsRegistering(!isRegistering);
+    setLoginData({ email: '', password: '' });
   };
 
   const handleLoginChange = (e) => {
@@ -35,28 +71,39 @@ const LoginSection = () => {
     });
   };
 
-  const handleLogin = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
-    // Simple validation
-    if (loginData.username && loginData.password) {
-      // In a real app, validate with backend
-      setIsLoggedIn(true);
-      setShowLoginForm(false);
-      toast.success('Login successful!');
-    } else {
-      toast.error('Please enter both username and password');
+    setIsLoading(true);
+
+    try {
+      if (isRegistering) {
+        // Register new user
+        await registerUser(loginData.email, loginData.password);
+        toast.success('Account created successfully!');
+        setIsRegistering(false);
+      } else {
+        // Login existing user
+        await loginUser(loginData.email, loginData.password);
+        toast.success('Login successful!');
+        setShowLoginForm(false);
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      toast.error(error.message || 'Authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('user');
-    setUserData({
-      nickname: '',
-      profilePicture: null,
-      testimonial: '',
-    });
-    toast.info('Logged out successfully');
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      toast.info('Logged out successfully');
+      setShowLoginForm(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error('Failed to log out. Please try again.');
+    }
   };
 
   const handleUserDataChange = (e) => {
@@ -80,22 +127,10 @@ const LoginSection = () => {
 
   const saveUserProfile = (e) => {
     e.preventDefault();
-    // Save to localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-    toast.success('Profile updated successfully!');
-  };
-  
-  const submitTestimonial = (e) => {
-    e.preventDefault();
-    if (userData.testimonial) {
-      toast.success('Your testimonial has been submitted!');
-      console.log('Testimonial submitted:', userData.testimonial);
-      setUserData({
-        ...userData,
-        testimonial: '', // Reset testimonial
-      });
-    } else {
-      toast.error('Please enter your testimonial');
+    if (currentUser) {
+      // Save to localStorage with user ID
+      localStorage.setItem(`profile_${currentUser.uid}`, JSON.stringify(userData));
+      toast.success('Profile updated successfully!');
     }
   };
 
@@ -112,19 +147,19 @@ const LoginSection = () => {
       {/* Login/Profile Modal */}
       {showLoginForm && (
         <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-xl p-6 animate-scale-in">
-          {!isLoggedIn ? (
+          {!currentUser ? (
             <>
-              <h3 className="text-2xl mb-4">Login</h3>
-              <form onSubmit={handleLogin}>
+              <h3 className="text-2xl mb-4">{isRegistering ? 'Register' : 'Login'}</h3>
+              <form onSubmit={handleAuth}>
                 <div className="mb-4">
-                  <label htmlFor="username" className="block text-gray-700 mb-2">
-                    Username
+                  <label htmlFor="email" className="block text-gray-700 mb-2">
+                    Email
                   </label>
                   <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={loginData.username}
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={loginData.email}
                     onChange={handleLoginChange}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
                     required
@@ -143,15 +178,30 @@ const LoginSection = () => {
                     onChange={handleLoginChange}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
                     required
+                    minLength={6}
                   />
+                  {isRegistering && (
+                    <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-orange text-white py-2 rounded-lg hover:bg-opacity-90 transition-colors focus:outline-none"
+                  disabled={isLoading}
+                  className={`w-full bg-orange text-white py-2 rounded-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-90'} transition-colors focus:outline-none`}
                 >
-                  Login
+                  {isLoading ? 'Processing...' : isRegistering ? 'Register' : 'Login'}
                 </button>
+
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={handleModeToggle}
+                    className="text-sm text-orange hover:underline"
+                  >
+                    {isRegistering ? 'Already have an account? Log in' : "Don't have an account? Register"}
+                  </button>
+                </div>
               </form>
             </>
           ) : (
@@ -164,6 +214,10 @@ const LoginSection = () => {
                 >
                   Logout
                 </button>
+              </div>
+
+              <div className="mb-2">
+                <span className="text-sm text-gray-600">Logged in as: {currentUser.email}</span>
               </div>
 
               <form onSubmit={saveUserProfile} className="mb-6">
@@ -219,25 +273,13 @@ const LoginSection = () => {
                 </button>
               </form>
 
-              {/* Testimonial Form */}
-              <div>
-                <h4 className="text-lg font-medium mb-2">Share Your Experience</h4>
-                <form onSubmit={submitTestimonial}>
-                  <textarea
-                    name="testimonial"
-                    value={userData.testimonial}
-                    onChange={handleUserDataChange}
-                    className="w-full px-4 py-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange mb-3"
-                    rows={3}
-                    placeholder="Tell us about your experience..."
-                  ></textarea>
-                  <button
-                    type="submit"
-                    className="w-full bg-orange text-white py-2 rounded-lg hover:bg-opacity-90 transition-colors focus:outline-none"
-                  >
-                    Submit Testimonial
-                  </button>
-                </form>
+              {/* Testimonial Status */}
+              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                {hasSubmitted ? (
+                  <p className="text-green-600">You have already submitted a testimonial. Thank you!</p>
+                ) : (
+                  <p className="text-blue-600">You can add your testimonial in the testimonials section below.</p>
+                )}
               </div>
             </div>
           )}
