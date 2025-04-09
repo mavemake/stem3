@@ -3,11 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { loginUser, registerUser, logoutUser, hasUserSubmittedTestimonial } from '@/services/firebase';
-import { useAuth } from '@/contexts/AuthContext';
+import { getUserId, hasUserSubmittedTestimonial } from '@/services/testimonialService';
 
 const LoginSection = () => {
-  const { currentUser } = useAuth();
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,42 +15,47 @@ const LoginSection = () => {
     profilePicture: null,
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{email: string, uid: string} | null>(null);
 
   useEffect(() => {
-    // Check if user has submitted a testimonial
-    const checkSubmissionStatus = async () => {
-      if (currentUser) {
+    // Check if user is logged in from localStorage
+    const storedUser = localStorage.getItem('stem3_user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setCurrentUser(user);
+      setIsLoggedIn(true);
+      
+      // Check if user has submitted a testimonial
+      const checkSubmissionStatus = async () => {
         try {
-          const submitted = await hasUserSubmittedTestimonial(currentUser.uid);
+          const userId = getUserId();
+          const submitted = await hasUserSubmittedTestimonial(userId);
           setHasSubmitted(submitted);
         } catch (error) {
           console.error("Error checking testimonial status:", error);
         }
-      }
-    };
-
-    // Load user profile data if available
-    const loadUserProfile = () => {
-      if (currentUser) {
-        const storedProfile = localStorage.getItem(`profile_${currentUser.uid}`);
+      };
+      
+      // Load user profile data
+      const loadUserProfile = () => {
+        const storedProfile = localStorage.getItem(`profile_${user.uid}`);
         if (storedProfile) {
           setUserData(JSON.parse(storedProfile));
-        } else {
-          // Set default nickname from email if available
-          if (currentUser.email) {
-            const name = currentUser.email.split('@')[0];
-            setUserData({
-              ...userData,
-              nickname: name
-            });
-          }
+        } else if (user.email) {
+          // Set default nickname from email
+          const name = user.email.split('@')[0];
+          setUserData({
+            ...userData,
+            nickname: name
+          });
         }
-      }
-    };
-
-    checkSubmissionStatus();
-    loadUserProfile();
-  }, [currentUser]);
+      };
+      
+      checkSubmissionStatus();
+      loadUserProfile();
+    }
+  }, []);
 
   const toggleLoginForm = () => {
     setShowLoginForm(!showLoginForm);
@@ -77,15 +80,37 @@ const LoginSection = () => {
 
     try {
       if (isRegistering) {
-        // Register new user
-        await registerUser(loginData.email, loginData.password);
+        // Simple local registration
+        const uid = 'user_' + Math.random().toString(36).substring(2, 15);
+        const user = { 
+          email: loginData.email, 
+          uid: uid,
+          password: loginData.password // Note: In a real app, never store passwords in localStorage
+        };
+        
+        localStorage.setItem('stem3_user', JSON.stringify(user));
+        localStorage.setItem('stem3_user_id', uid);
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        
         toast.success('Account created successfully!');
         setIsRegistering(false);
       } else {
-        // Login existing user
-        await loginUser(loginData.email, loginData.password);
-        toast.success('Login successful!');
-        setShowLoginForm(false);
+        // Simple login check
+        const storedUser = localStorage.getItem('stem3_user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          if (user.email === loginData.email && user.password === loginData.password) {
+            setCurrentUser(user);
+            setIsLoggedIn(true);
+            toast.success('Login successful!');
+            setShowLoginForm(false);
+          } else {
+            throw new Error('Invalid email or password');
+          }
+        } else {
+          throw new Error('User not found. Please register first');
+        }
       }
     } catch (error) {
       console.error("Authentication error:", error);
@@ -95,9 +120,12 @@ const LoginSection = () => {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      await logoutUser();
+      // Don't remove user ID needed for testimonials
+      localStorage.removeItem('stem3_user');
+      setCurrentUser(null);
+      setIsLoggedIn(false);
       toast.info('Logged out successfully');
       setShowLoginForm(false);
     } catch (error) {
