@@ -1,6 +1,10 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { isUserLoggedIn } from '@/services/testimonialService';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from './ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 // Empty gallery to start with
 const initialGalleryImages: { id: number; src: string; alt: string }[] = [];
@@ -11,6 +15,12 @@ const GallerySection = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Check if user is logged in
+    if (!isUserLoggedIn()) {
+      toast.error("Please login to upload photos");
+      return;
+    }
+    
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setIsUploading(true);
@@ -49,16 +59,31 @@ const GallerySection = () => {
         
         {/* Upload Button */}
         <div className="mb-10 flex justify-center">
-          <label className="btn btn-primary cursor-pointer relative overflow-hidden">
+          <label className={cn(
+            "btn btn-primary cursor-pointer relative overflow-hidden",
+            !isUserLoggedIn() ? "opacity-70" : ""
+          )}>
             <input 
               type="file" 
               className="absolute inset-0 opacity-0 cursor-pointer" 
               accept="image/*"
               onChange={handleImageUpload}
+              disabled={!isUserLoggedIn()}
             />
             {isUploading ? 'Uploading...' : 'Upload Your Photo'}
           </label>
         </div>
+        
+        {!isUserLoggedIn() && (
+          <div className="max-w-xl mx-auto mb-8">
+            <Alert variant="destructive" className="bg-orange/10 border-orange">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                You need to login to upload photos to the gallery.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
         
         {galleryImages.length > 0 ? (
           /* Gallery Grid */
