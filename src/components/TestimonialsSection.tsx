@@ -1,27 +1,26 @@
+
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, LogIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  getTestimonials, 
-  addTestimonial, 
-  uploadTestimonialImage,
-  hasUserSubmittedTestimonial
-} from '@/services/firebase';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { toast } from 'sonner';
+import { 
+  getUserId,
+  getTestimonials, 
+  addTestimonial, 
+  hasUserSubmittedTestimonial
+} from '@/services/testimonialService';
 
 interface Testimonial {
   id: string;
   name: string;
   text: string;
-  imageUrl: string;
+  image_url: string;
 }
 
 const TestimonialsSection = () => {
-  const { currentUser } = useAuth();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -35,6 +34,7 @@ const TestimonialsSection = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast: toastNotification } = useToast();
+  const userId = getUserId();
   
   useEffect(() => {
     const loadData = async () => {
@@ -43,21 +43,8 @@ const TestimonialsSection = () => {
         const data = await getTestimonials();
         setTestimonials(data);
         
-        if (currentUser) {
-          const submitted = await hasUserSubmittedTestimonial(currentUser.uid);
-          setHasSubmitted(submitted);
-          
-          const storedProfile = localStorage.getItem(`profile_${currentUser.uid}`);
-          if (storedProfile) {
-            const profile = JSON.parse(storedProfile);
-            if (profile.nickname) {
-              setNewTestimonial(prev => ({
-                ...prev,
-                name: profile.nickname
-              }));
-            }
-          }
-        }
+        const submitted = await hasUserSubmittedTestimonial(userId);
+        setHasSubmitted(submitted);
       } catch (error) {
         console.error("Error loading data:", error);
         toast("Error loading testimonials. Please refresh the page.");
@@ -67,7 +54,7 @@ const TestimonialsSection = () => {
     };
     
     loadData();
-  }, [currentUser]);
+  }, [userId]);
 
   const nextSlide = () => {
     if (!isAnimating && testimonials.length > 0) {
@@ -92,7 +79,7 @@ const TestimonialsSection = () => {
   }, [currentIndex]);
 
   useEffect(() => {
-    let interval;
+    let interval: NodeJS.Timeout;
     if (testimonials.length > 0) {
       interval = setInterval(() => {
         nextSlide();
@@ -128,15 +115,6 @@ const TestimonialsSection = () => {
   const handleAddTestimonial = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!currentUser) {
-      toastNotification({
-        title: "Authentication Required",
-        description: "Please log in to submit a testimonial",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     if (hasSubmitted) {
       toastNotification({
         title: "Already Submitted",
@@ -149,22 +127,19 @@ const TestimonialsSection = () => {
     if (newTestimonial.name.trim() && newTestimonial.text.trim() && selectedFile) {
       try {
         setIsLoading(true);
-        const userId = currentUser.uid;
         
-        const imageUrl = await uploadTestimonialImage(selectedFile, userId);
-        
-        await addTestimonial(
+        const result = await addTestimonial(
           newTestimonial.name,
           newTestimonial.text,
-          imageUrl,
+          selectedFile,
           userId
         );
         
         const newEntry = {
-          id: Date.now().toString(),
+          id: result.id.toString(),
           name: newTestimonial.name,
           text: newTestimonial.text,
-          imageUrl: imageUrl,
+          image_url: result.image_url,
         };
         
         setTestimonials(prev => [...prev, newEntry]);
@@ -174,9 +149,9 @@ const TestimonialsSection = () => {
         setHasSubmitted(true);
         
         toast("Your testimonial has been submitted successfully!");
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error adding testimonial:", error);
-        toast("Failed to submit testimonial. Please try again.");
+        toast(error.message || "Failed to submit testimonial. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -194,24 +169,7 @@ const TestimonialsSection = () => {
       <div className="container mx-auto">
         <h2 className="text-4xl text-center mb-8">What Our Students Say</h2>
         
-        {!currentUser ? (
-          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16 text-center">
-            <h3 className="text-2xl mb-4">Share Your Experience</h3>
-            <p className="mb-6 text-gray-700">Please log in to share your testimonial.</p>
-            <div className="flex justify-center">
-              <button 
-                className="bg-orange text-white py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors flex items-center gap-2"
-                onClick={() => {
-                  const loginButton = document.querySelector('.fixed.bottom-8.right-8 button');
-                  if (loginButton) (loginButton as HTMLElement).click();
-                }}
-              >
-                <LogIn size={18} />
-                <span>Log In</span>
-              </button>
-            </div>
-          </div>
-        ) : !hasSubmitted ? (
+        {!hasSubmitted ? (
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16">
             <h3 className="text-2xl mb-4">Share Your Experience</h3>
             <form onSubmit={handleAddTestimonial}>
@@ -304,7 +262,7 @@ const TestimonialsSection = () => {
                       <div className="flex flex-col items-center text-center">
                         <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 border-orange shadow-md">
                           <img 
-                            src={testimonial.imageUrl} 
+                            src={testimonial.image_url} 
                             alt={`${testimonial.name}'s photo`} 
                             className="w-full h-full object-cover"
                           />
