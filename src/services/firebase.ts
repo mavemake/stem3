@@ -53,37 +53,57 @@ export const onAuthChange = (callback: (user: FirebaseUser | null) => void) => {
 
 // Upload testimonial image to Firebase Storage
 export const uploadTestimonialImage = async (file: File, userId: string): Promise<string> => {
-  const storageRef = ref(storage, `testimonials/${userId}_${Date.now()}`);
-  await uploadBytes(storageRef, file);
-  return getDownloadURL(storageRef);
+  try {
+    const storageRef = ref(storage, `testimonials/${userId}_${Date.now()}`);
+    await uploadBytes(storageRef, file);
+    return getDownloadURL(storageRef);
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw new Error("Failed to upload image. Please try again.");
+  }
 };
 
 // Add testimonial to Firestore
 export const addTestimonial = async (name: string, text: string, imageUrl: string, userId: string) => {
-  return addDoc(testimonialsCollection, {
-    name,
-    text,
-    imageUrl,
-    userId,
-    createdAt: new Date()
-  });
+  try {
+    return await addDoc(testimonialsCollection, {
+      name,
+      text,
+      imageUrl,
+      userId,
+      createdAt: new Date()
+    });
+  } catch (error) {
+    console.error("Error adding testimonial:", error);
+    throw new Error("Failed to save testimonial. Please try again.");
+  }
 };
 
 // Check if user has already submitted a testimonial
 export const hasUserSubmittedTestimonial = async (userId: string): Promise<boolean> => {
-  const q = query(testimonialsCollection, where("userId", "==", userId));
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty;
+  try {
+    const q = query(testimonialsCollection, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking testimonial status:", error);
+    return false;
+  }
 };
 
 // Get all testimonials
 export const getTestimonials = async () => {
-  const querySnapshot = await getDocs(testimonialsCollection);
-  const testimonials: any[] = [];
-  
-  querySnapshot.forEach((doc) => {
-    testimonials.push({ id: doc.id, ...doc.data() });
-  });
-  
-  return testimonials;
+  try {
+    const querySnapshot = await getDocs(testimonialsCollection);
+    const testimonials: any[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      testimonials.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return testimonials;
+  } catch (error) {
+    console.error("Error fetching testimonials:", error);
+    throw new Error("Failed to load testimonials.");
+  }
 };

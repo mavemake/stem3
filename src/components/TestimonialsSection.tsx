@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,10 +8,10 @@ import {
   uploadTestimonialImage,
   hasUserSubmittedTestimonial
 } from '@/services/firebase';
-import { getUserId } from '@/services/userManager';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { toast } from 'sonner';
 
 interface Testimonial {
   id: string;
@@ -33,18 +32,21 @@ const TestimonialsSection = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const { toast } = useToast();
+  const { toast: toastNotification } = useToast();
   
-  // Check if user has already submitted a testimonial and load existing testimonials
   useEffect(() => {
-    const checkSubmissionStatus = async () => {
-      if (currentUser) {
-        try {
+    const loadData = async () => {
+      setIsLoadingData(true);
+      try {
+        const data = await getTestimonials();
+        setTestimonials(data);
+        
+        if (currentUser) {
           const submitted = await hasUserSubmittedTestimonial(currentUser.uid);
           setHasSubmitted(submitted);
           
-          // Pre-fill name if user has a nickname saved
           const storedProfile = localStorage.getItem(`profile_${currentUser.uid}`);
           if (storedProfile) {
             const profile = JSON.parse(storedProfile);
@@ -55,29 +57,17 @@ const TestimonialsSection = () => {
               }));
             }
           }
-        } catch (error) {
-          console.error("Error checking submission status:", error);
         }
-      }
-    };
-    
-    const loadTestimonials = async () => {
-      try {
-        const data = await getTestimonials();
-        setTestimonials(data);
       } catch (error) {
-        console.error("Error loading testimonials:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load testimonials. Please try again later.",
-          variant: "destructive"
-        });
+        console.error("Error loading data:", error);
+        toast("Error loading testimonials. Please refresh the page.");
+      } finally {
+        setIsLoadingData(false);
       }
     };
     
-    checkSubmissionStatus();
-    loadTestimonials();
-  }, [currentUser, toast]);
+    loadData();
+  }, [currentUser]);
 
   const nextSlide = () => {
     if (!isAnimating && testimonials.length > 0) {
@@ -114,7 +104,7 @@ const TestimonialsSection = () => {
     };
   }, [testimonials.length]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewTestimonial(prev => ({
       ...prev,
@@ -122,12 +112,11 @@ const TestimonialsSection = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       
-      // Preview image
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result as string);
@@ -136,11 +125,11 @@ const TestimonialsSection = () => {
     }
   };
 
-  const handleAddTestimonial = async (e) => {
+  const handleAddTestimonial = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!currentUser) {
-      toast({
+      toastNotification({
         title: "Authentication Required",
         description: "Please log in to submit a testimonial",
         variant: "destructive"
@@ -149,7 +138,7 @@ const TestimonialsSection = () => {
     }
     
     if (hasSubmitted) {
-      toast({
+      toastNotification({
         title: "Already Submitted",
         description: "You have already submitted a testimonial",
         variant: "destructive"
@@ -162,10 +151,8 @@ const TestimonialsSection = () => {
         setIsLoading(true);
         const userId = currentUser.uid;
         
-        // Upload image to Firebase Storage
         const imageUrl = await uploadTestimonialImage(selectedFile, userId);
         
-        // Add testimonial to Firestore
         await addTestimonial(
           newTestimonial.name,
           newTestimonial.text,
@@ -173,7 +160,6 @@ const TestimonialsSection = () => {
           userId
         );
         
-        // Update local state
         const newEntry = {
           id: Date.now().toString(),
           name: newTestimonial.name,
@@ -187,22 +173,15 @@ const TestimonialsSection = () => {
         setSelectedFile(null);
         setHasSubmitted(true);
         
-        toast({
-          title: "Success",
-          description: "Your testimonial has been submitted!",
-        });
+        toast("Your testimonial has been submitted successfully!");
       } catch (error) {
         console.error("Error adding testimonial:", error);
-        toast({
-          title: "Error",
-          description: "Failed to submit testimonial",
-          variant: "destructive"
-        });
+        toast("Failed to submit testimonial. Please try again.");
       } finally {
         setIsLoading(false);
       }
     } else {
-      toast({
+      toastNotification({
         title: "Error",
         description: "Please fill in all fields including your photo",
         variant: "destructive"
@@ -215,7 +194,6 @@ const TestimonialsSection = () => {
       <div className="container mx-auto">
         <h2 className="text-4xl text-center mb-8">What Our Students Say</h2>
         
-        {/* Add Testimonial Form */}
         {!currentUser ? (
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16 text-center">
             <h3 className="text-2xl mb-4">Share Your Experience</h3>
@@ -267,7 +245,6 @@ const TestimonialsSection = () => {
                 ></textarea>
               </div>
               
-              {/* Image Upload Field */}
               <div className="mb-6">
                 <Label htmlFor="image" className="block text-gray-700 mb-2">
                   Your Photo (Required)
@@ -310,9 +287,12 @@ const TestimonialsSection = () => {
           </div>
         )}
         
-        {testimonials.length > 0 ? (
+        {isLoadingData ? (
+          <div className="text-center py-12">
+            <p>Loading testimonials...</p>
+          </div>
+        ) : testimonials.length > 0 ? (
           <div className="relative max-w-4xl mx-auto">
-            {/* Carousel */}
             <div className="overflow-hidden relative">
               <div 
                 className="flex transition-transform duration-500 ease-in-out"
@@ -338,7 +318,6 @@ const TestimonialsSection = () => {
               </div>
             </div>
             
-            {/* Navigation Buttons */}
             {testimonials.length > 1 && (
               <>
                 <button 
@@ -357,7 +336,6 @@ const TestimonialsSection = () => {
                   <ChevronRight size={24} />
                 </button>
                 
-                {/* Pagination */}
                 <div className="flex justify-center mt-8 space-x-2">
                   {testimonials.map((_, index) => (
                     <button
