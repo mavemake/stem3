@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 import os
 import sqlite3
 import time
@@ -7,12 +7,15 @@ import json
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static'),
+            template_folder=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates'))
+
 # Enable CORS for all domains
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuration
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static/uploads')
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
 DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testimonials.db')
 
@@ -42,6 +45,10 @@ init_db()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/testimonials', methods=['GET', 'POST'])
 def testimonials():

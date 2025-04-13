@@ -1,0 +1,3 @@
+
+This file is just a placeholder to ensure the images directory is created.
+Real images would be uploaded by users or provided by site administrators.

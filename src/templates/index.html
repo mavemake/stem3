@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEM 3 | Science, Technology, Engineering & Mathematics</title>
+    <meta name="description" content="Action Speaks Louder Than Voice! Explore the world of STEM 3 education." />
+    <meta name="author" content="STEM 3" />
+
+    <meta property="og:title" content="STEM 3 | Science, Technology, Engineering & Mathematics" />
+    <meta property="og:description" content="Action Speaks Louder Than Voice! Explore the world of STEM 3 education." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@stem3edu" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Miniver&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">STEM 3</div>
+                <ul class="nav-links">
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#menu">Projects</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#testimonials">Testimonials</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="profile-link"><a href="#profile">Profile</a></li>
+                </ul>
+                <div class="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section id="hero" class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>STEM 3 Education</h1>
+                <p class="tagline">Action Speaks Louder Than Voice!</p>
+                <div class="hero-buttons">
+                    <a href="#about" class="btn btn-primary">Learn More</a>
+                    <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section section">
+        <div class="container">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>STEM 3 is dedicated to promoting Science, Technology, Engineering, and Mathematics education through hands-on learning experiences. We believe in empowering the next generation of innovators through practical applications of STEM concepts.</p>
+                    <p>Our mission is to make STEM education accessible and engaging for all students, fostering creativity, critical thinking, and problem-solving skills.</p>
+                </div>
+                <div class="about-image">
+                    <img src="{{ url_for('static', filename='images/about.jpg') }}" alt="STEM Education" class="rounded-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu" class="menu-section section">
+        <div class="container">
+            <h2>Our Projects</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-image">
+                        <img src="{{ url_for('static', filename='images/project1.jpg') }}" alt="Project 1">
+                    </div>
+                    <div class="menu-info">
+                        <h3>Robotics Workshop</h3>
+                        <p>Hands-on robotics learning experience for beginners to advanced students.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-image">
+                        <img src="{{ url_for('static', filename='images/project2.jpg') }}" alt="Project 2">
+                    </div>
+                    <div class="menu-info">
+                        <h3>Coding Camp</h3>
+                        <p>Learn programming fundamentals and build your own applications.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-image">
+                        <img src="{{ url_for('static', filename='images/project3.jpg') }}" alt="Project 3">
+                    </div>
+                    <div class="menu-info">
+                        <h3>Science Fair</h3>
+                        <p>Annual event showcasing student research and experiments.</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-image">
+                        <img src="{{ url_for('static', filename='images/project4.jpg') }}" alt="Project 4">
+                    </div>
+                    <div class="menu-info">
+                        <h3>Math Olympiad</h3>
+                        <p>Competitive mathematics events for talented problem solvers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="gallery-section section">
+        <div class="container">
+            <h2>Gallery</h2>
+            <div class="upload-container">
+                <label for="gallery-upload" class="btn btn-primary">Upload Your Photo</label>
+                <input type="file" id="gallery-upload" accept="image/*" style="display: none;">
+            </div>
+            
+            <div id="profile-prompt-alert" class="alert hidden">
+                <p>Consider <a href="#profile" class="text-orange">creating a profile</a> to personalize your experience!</p>
+            </div>
+
+            <div id="gallery-grid" class="gallery-grid">
+                <!-- Gallery images will be populated here -->
+                <p id="no-images-message" class="text-center">No images in the gallery yet. Be the first to share your memories!</p>
+            </div>
+        </div>
+        
+        <div id="lightbox" class="lightbox hidden">
+            <div class="lightbox-content">
+                <img id="lightbox-img" src="" alt="Gallery Image">
+                <button class="lightbox-close">X</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials-section section">
+        <div class="container">
+            <h2>Testimonials</h2>
+            
+            <div id="testimonials-container" class="testimonials-container">
+                <!-- Testimonials will be loaded here -->
+                <p id="loading-testimonials" class="text-center">Loading testimonials...</p>
+                <p id="no-testimonials" class="text-center hidden">No testimonials yet. Be the first to share your experience!</p>
+            </div>
+            
+            <div class="testimonial-form-container">
+                <h3>Share Your Experience</h3>
+                <div id="testimonial-profile-alert" class="alert hidden">
+                    <p>Please <a href="#profile" class="text-orange">create a profile</a> before submitting a testimonial!</p>
+                </div>
+                <form id="testimonial-form" class="hidden">
+                    <div class="form-group">
+                        <label for="testimonial-text">Your Feedback</label>
+                        <textarea id="testimonial-text" placeholder="Share your experience with STEM 3..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonial-image">Upload an Image (Optional)</label>
+                        <input type="file" id="testimonial-image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Testimonial</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section section">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h3>Email</h3>
+                        <p>info@stem3education.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Phone</h3>
+                        <p>+1 (123) 456-7890</p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Address</h3>
+                        <p>123 STEM Street, Education City, ST 12345</p>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" placeholder="Your message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="profile" class="profile-section section">
+        <div class="container">
+            <h2>Your Profile</h2>
+            <div id="profile-login" class="profile-login">
+                <h3>Create Your Profile</h3>
+                <form id="nickname-form">
+                    <div class="form-group">
+                        <label for="nickname">Nickname</label>
+                        <input type="text" id="nickname" placeholder="Choose a nickname" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </form>
+            </div>
+            
+            <div id="profile-info" class="profile-info hidden">
+                <h3>Welcome, <span id="profile-name"></span>!</h3>
+                <p>You're all set to interact with our site.</p>
+                <button id="logout-btn" class="btn btn-secondary">Sign Out</button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>STEM 3</h3>
+                    <p>Action Speaks Louder Than Voice!</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#menu">Projects</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p>Email: info@stem3education.com</p>
+                    <p>Phone: +1 (123) 456-7890</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 STEM 3. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast notification container -->
+    <div id="toast-container"></div>
+
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
