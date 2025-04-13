@@ -2,7 +2,9 @@
 import axios from 'axios';
 
 // API base URL for the Flask backend
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
+// Use the current location's host for the API URL to ensure it works in different environments
+const API_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
+console.log("Using API URL:", API_URL);
 
 // Get user ID from local storage or generate a temporary one
 export const getUserId = (): string => {
