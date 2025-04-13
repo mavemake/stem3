@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // API base URL for the Flask backend
-const API_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 
 // Get user ID from local storage or generate a temporary one
 export const getUserId = (): string => {
@@ -34,6 +34,7 @@ export const hasUserSubmittedTestimonial = async (userId: string): Promise<boole
 // Upload testimonial with image
 export const addTestimonial = async (name: string, text: string, image: File, userId: string) => {
   try {
+    console.log("Submitting to:", `${API_URL}/testimonials`);
     const formData = new FormData();
     formData.append('name', name);
     formData.append('text', text);

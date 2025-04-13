@@ -8,15 +8,18 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+# Enable CORS for all domains
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuration
-UPLOAD_FOLDER = '../uploads/'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
-DATABASE = 'testimonials.db'
+DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testimonials.db')
 
 # Create uploads directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+print(f"Upload folder: {UPLOAD_FOLDER}")
+print(f"Database path: {DATABASE}")
 
 # Initialize database
 def init_db():
@@ -52,13 +55,17 @@ def testimonials():
             conn.close()
             return jsonify({"success": True, "data": testimonials})
         except Exception as e:
+            print(f"Error getting testimonials: {str(e)}")
             return jsonify({"success": False, "error": str(e)})
     
     elif request.method == 'POST':
         try:
+            print("Received testimonial submission")
             name = request.form.get('name')
             text = request.form.get('text')
             user_id = request.form.get('userId')
+            
+            print(f"Testimonial data: name={name}, user_id={user_id}")
             
             # Check if user has already submitted a testimonial
             conn = sqlite3.connect(DATABASE)
@@ -73,11 +80,17 @@ def testimonials():
             image_url = ""
             if 'image' in request.files:
                 file = request.files['image']
+                print(f"Received file: {file.filename}")
                 if file and allowed_file(file.filename):
-                    filename = secure_filename(time.time().__str__() + "_" + file.filename)
+                    filename = secure_filename(str(time.time()) + "_" + file.filename)
                     file_path = os.path.join(UPLOAD_FOLDER, filename)
                     file.save(file_path)
-                    image_url = "uploads/" + filename
+                    print(f"Saved file to: {file_path}")
+                    image_url = f"uploads/{filename}"
+                else:
+                    print("Invalid file or filename")
+            else:
+                print("No image file in request")
             
             cursor.execute(
                 'INSERT INTO testimonials (name, text, image_url, user_id) VALUES (?, ?, ?, ?)', 
@@ -100,11 +113,20 @@ def testimonials():
             })
         
         except Exception as e:
+            print(f"Error submitting testimonial: {str(e)}")
             return jsonify({"success": False, "error": str(e)})
 
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    return send_from_directory('../uploads', filename)
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        "status": "ok",
+        "message": "API is running",
+        "version": "1.0.0"
+    })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
