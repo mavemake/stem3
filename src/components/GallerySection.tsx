@@ -15,12 +15,6 @@ const GallerySection = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Check if user is logged in
-    if (!isUserLoggedIn()) {
-      toast.error("Please login to upload photos");
-      return;
-    }
-    
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setIsUploading(true);
@@ -52,6 +46,15 @@ const GallerySection = () => {
     setSelectedImage(null);
   };
 
+  const handleProfilePrompt = () => {
+    // Scroll to the section with profile creation
+    const loginSection = document.getElementById('profile-prompt');
+    if (loginSection) {
+      loginSection.scrollIntoView({ behavior: 'smooth' });
+      toast.info('Create a profile to personalize your experience!');
+    }
+  };
+
   return (
     <section id="gallery" className="section bg-white">
       <div className="container mx-auto">
@@ -59,16 +62,12 @@ const GallerySection = () => {
         
         {/* Upload Button */}
         <div className="mb-10 flex justify-center">
-          <label className={cn(
-            "btn btn-primary cursor-pointer relative overflow-hidden",
-            !isUserLoggedIn() ? "opacity-70" : ""
-          )}>
+          <label className="btn btn-primary cursor-pointer relative overflow-hidden">
             <input 
               type="file" 
               className="absolute inset-0 opacity-0 cursor-pointer" 
               accept="image/*"
               onChange={handleImageUpload}
-              disabled={!isUserLoggedIn()}
             />
             {isUploading ? 'Uploading...' : 'Upload Your Photo'}
           </label>
@@ -76,10 +75,13 @@ const GallerySection = () => {
         
         {!isUserLoggedIn() && (
           <div className="max-w-xl mx-auto mb-8">
-            <Alert variant="destructive" className="bg-orange/10 border-orange">
+            <Alert className="bg-orange/10 border-orange">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                You need to login to upload photos to the gallery.
+                Consider <button 
+                  onClick={handleProfilePrompt} 
+                  className="text-orange underline font-medium"
+                >creating a profile</button> to personalize your experience!
               </AlertDescription>
             </Alert>
           </div>
@@ -129,6 +131,9 @@ const GallerySection = () => {
             </div>
           </div>
         )}
+        
+        {/* Hidden element for scrolling target */}
+        <div id="profile-prompt" className="invisible h-0"></div>
       </div>
     </section>
   );

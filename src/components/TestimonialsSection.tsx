@@ -10,7 +10,8 @@ import {
   getUserId,
   getTestimonials, 
   addTestimonial, 
-  hasUserSubmittedTestimonial
+  hasUserSubmittedTestimonial,
+  isUserLoggedIn
 } from '@/services/testimonialService';
 
 interface Testimonial {
@@ -112,6 +113,15 @@ const TestimonialsSection = () => {
     }
   };
 
+  const handleProfilePrompt = () => {
+    // Scroll to the section with profile creation
+    const loginSection = document.getElementById('profile-prompt');
+    if (loginSection) {
+      loginSection.scrollIntoView({ behavior: 'smooth' });
+      toast.info('Create a profile to personalize your experience!');
+    }
+  };
+
   const handleAddTestimonial = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -172,6 +182,18 @@ const TestimonialsSection = () => {
         {!hasSubmitted ? (
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 mb-16">
             <h3 className="text-2xl mb-4">Share Your Experience</h3>
+            
+            {!isUserLoggedIn() && (
+              <div className="bg-orange/10 border border-orange p-4 rounded-lg mb-6">
+                <p className="text-center text-sm">
+                  Consider <button 
+                    onClick={handleProfilePrompt} 
+                    className="text-orange underline font-medium"
+                  >creating a profile</button> to personalize your experience!
+                </p>
+              </div>
+            )}
+            
             <form onSubmit={handleAddTestimonial}>
               <div className="mb-4">
                 <Label htmlFor="name" className="block text-gray-700 mb-2">
@@ -320,6 +342,9 @@ const TestimonialsSection = () => {
             <p>No testimonials yet. Be the first to share your experience!</p>
           </div>
         )}
+        
+        {/* Hidden element for scrolling target */}
+        <div id="profile-prompt" className="invisible h-0"></div>
       </div>
     </section>
   );

@@ -7,16 +7,15 @@ import { getUserId, hasUserSubmittedTestimonial } from '@/services/testimonialSe
 
 const LoginSection = () => {
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [nickname, setNickname] = useState('');
   const [userData, setUserData] = useState({
     nickname: '',
     profilePicture: null,
   });
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{email: string, uid: string} | null>(null);
+  const [currentUser, setCurrentUser] = useState<{nickname: string, uid: string} | null>(null);
 
   useEffect(() => {
     // Check if user is logged in from localStorage
@@ -42,12 +41,11 @@ const LoginSection = () => {
         const storedProfile = localStorage.getItem(`profile_${user.uid}`);
         if (storedProfile) {
           setUserData(JSON.parse(storedProfile));
-        } else if (user.email) {
-          // Set default nickname from email
-          const name = user.email.split('@')[0];
+        } else if (user.nickname) {
+          // Set default nickname
           setUserData({
             ...userData,
-            nickname: name
+            nickname: user.nickname
           });
         }
       };
@@ -61,60 +59,40 @@ const LoginSection = () => {
     setShowLoginForm(!showLoginForm);
   };
 
-  const handleModeToggle = () => {
-    setIsRegistering(!isRegistering);
-    setLoginData({ email: '', password: '' });
+  const handleNicknameChange = (e) => {
+    setNickname(e.target.value);
   };
 
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData({
-      ...loginData,
-      [name]: value,
-    });
-  };
-
-  const handleAuth = async (e) => {
+  const handleCreateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (isRegistering) {
-        // Simple local registration
-        const uid = 'user_' + Math.random().toString(36).substring(2, 15);
-        const user = { 
-          email: loginData.email, 
-          uid: uid,
-          password: loginData.password // Note: In a real app, never store passwords in localStorage
-        };
-        
-        localStorage.setItem('stem3_user', JSON.stringify(user));
-        localStorage.setItem('stem3_user_id', uid);
-        setCurrentUser(user);
-        setIsLoggedIn(true);
-        
-        toast.success('Account created successfully!');
-        setIsRegistering(false);
-      } else {
-        // Simple login check
-        const storedUser = localStorage.getItem('stem3_user');
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          if (user.email === loginData.email && user.password === loginData.password) {
-            setCurrentUser(user);
-            setIsLoggedIn(true);
-            toast.success('Login successful!');
-            setShowLoginForm(false);
-          } else {
-            throw new Error('Invalid email or password');
-          }
-        } else {
-          throw new Error('User not found. Please register first');
-        }
+      if (!nickname.trim()) {
+        throw new Error('Please enter a nickname');
       }
+      
+      // Simple user creation with just a nickname
+      const uid = 'user_' + Math.random().toString(36).substring(2, 15);
+      const user = { 
+        nickname: nickname, 
+        uid: uid
+      };
+      
+      localStorage.setItem('stem3_user', JSON.stringify(user));
+      localStorage.setItem('stem3_user_id', uid);
+      setCurrentUser(user);
+      setIsLoggedIn(true);
+      setUserData({
+        ...userData,
+        nickname: nickname
+      });
+      
+      toast.success('Profile created successfully!');
+      setShowLoginForm(false);
     } catch (error) {
-      console.error("Authentication error:", error);
-      toast.error(error.message || 'Authentication failed. Please try again.');
+      console.error("Profile creation error:", error);
+      toast.error(error.message || 'Failed to create profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -172,45 +150,27 @@ const LoginSection = () => {
         <User size={24} />
       </button>
 
-      {/* Login/Profile Modal */}
+      {/* Profile Modal */}
       {showLoginForm && (
         <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-xl p-6 animate-scale-in">
           {!currentUser ? (
             <>
-              <h3 className="text-2xl mb-4">{isRegistering ? 'Register' : 'Login'}</h3>
-              <form onSubmit={handleAuth}>
+              <h3 className="text-2xl mb-4">Create Your Profile</h3>
+              <form onSubmit={handleCreateProfile}>
                 <div className="mb-4">
-                  <label htmlFor="email" className="block text-gray-700 mb-2">
-                    Email
+                  <label htmlFor="nickname" className="block text-gray-700 mb-2">
+                    Nickname
                   </label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={loginData.email}
-                    onChange={handleLoginChange}
+                    type="text"
+                    id="nickname"
+                    name="nickname"
+                    value={nickname}
+                    onChange={handleNicknameChange}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
                     required
+                    placeholder="How should we call you?"
                   />
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="password" className="block text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={loginData.password}
-                    onChange={handleLoginChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
-                    required
-                    minLength={6}
-                  />
-                  {isRegistering && (
-                    <p className="text-xs text-gray-500 mt-1">Password must be at least 6 characters</p>
-                  )}
                 </div>
 
                 <button
@@ -218,18 +178,8 @@ const LoginSection = () => {
                   disabled={isLoading}
                   className={`w-full bg-orange text-white py-2 rounded-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-90'} transition-colors focus:outline-none`}
                 >
-                  {isLoading ? 'Processing...' : isRegistering ? 'Register' : 'Login'}
+                  {isLoading ? 'Creating...' : 'Create Profile'}
                 </button>
-
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={handleModeToggle}
-                    className="text-sm text-orange hover:underline"
-                  >
-                    {isRegistering ? 'Already have an account? Log in' : "Don't have an account? Register"}
-                  </button>
-                </div>
               </form>
             </>
           ) : (
@@ -245,7 +195,7 @@ const LoginSection = () => {
               </div>
 
               <div className="mb-2">
-                <span className="text-sm text-gray-600">Logged in as: {currentUser.email}</span>
+                <span className="text-sm text-gray-600">Logged in as: {currentUser.nickname}</span>
               </div>
 
               <form onSubmit={saveUserProfile} className="mb-6">
