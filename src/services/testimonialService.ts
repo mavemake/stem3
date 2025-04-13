@@ -1,6 +1,9 @@
 
 import axios from 'axios';
 
+// API base URL for the Flask backend
+const API_URL = 'http://localhost:5000';
+
 // Get user ID from local storage or generate a temporary one
 export const getUserId = (): string => {
   let userId = localStorage.getItem('stem3_user_id');
@@ -17,7 +20,7 @@ export const getUserId = (): string => {
 // Check if user has already submitted a testimonial
 export const hasUserSubmittedTestimonial = async (userId: string): Promise<boolean> => {
   try {
-    const response = await axios.get(`/api/testimonials.php`);
+    const response = await axios.get(`${API_URL}/testimonials`);
     if (response.data.success && response.data.data) {
       return response.data.data.some((testimonial: any) => testimonial.user_id === userId);
     }
@@ -37,7 +40,7 @@ export const addTestimonial = async (name: string, text: string, image: File, us
     formData.append('image', image);
     formData.append('userId', userId);
     
-    const response = await axios.post(`/api/testimonials.php`, formData, {
+    const response = await axios.post(`${API_URL}/testimonials`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -57,7 +60,7 @@ export const addTestimonial = async (name: string, text: string, image: File, us
 // Get all testimonials
 export const getTestimonials = async () => {
   try {
-    const response = await axios.get(`/api/testimonials.php`);
+    const response = await axios.get(`${API_URL}/testimonials`);
     
     if (!response.data.success) {
       throw new Error(response.data.error || 'Failed to load testimonials');
